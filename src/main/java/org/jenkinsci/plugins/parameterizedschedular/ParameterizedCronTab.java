@@ -7,14 +7,12 @@ import static java.util.Calendar.MONTH;
 import hudson.scheduler.CronTab;
 import hudson.scheduler.Hash;
 
-import java.lang.reflect.Method;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-
 import antlr.ANTLRException;
+
+import com.google.common.collect.Maps;
 
 /**
  * this is a copy of {@link CronTab} with added parameters map support
@@ -24,15 +22,22 @@ import antlr.ANTLRException;
 public class ParameterizedCronTab {
 
 	private final Map<String, String> parameterValues;
-//	private final CronTab cronTab;
-	private long[] bits;
-	private Integer dayOfWeek;
+	private final long[] bits;
+	private final Integer dayOfWeek;
+	private final CronTab cronTab;
 
+	/**
+	 * look at this fragile happy-crappy! Is this better than duplicating all of the Crontab source-tree? you decide.
+	 * 
+	 * @param cronTab the crontab to use as a template
+	 * @param parameters the parameters in name=value key pairings
+	 */
 	public ParameterizedCronTab(CronTab cronTab, Map<String, String> parameters) {
-//		this.cronTab = cronTab;
-		bits = (long[])FieldAccessor.access(cronTab, "bits");
-		dayOfWeek = (Integer)FieldAccessor.access(cronTab, "dayOfWeek");
-		
+		this.cronTab = cronTab;
+		FieldAccessor fieldAccessor = new FieldAccessor();
+		bits = fieldAccessor.access(cronTab, "bits");
+		dayOfWeek = fieldAccessor.access(cronTab, "dayOfWeek");
+
 		parameterValues = parameters;
 	}
 
@@ -55,54 +60,29 @@ public class ParameterizedCronTab {
 		return parameterValues;
 	}
 
-    /**
-     * Returns true if n-th bit is on.
-     */
-    private boolean checkBits(long bitMask, int n) {
-        return (bitMask|(1L<<n))==bitMask;
-    }
+	/**
+	 * Returns true if n-th bit is on.
+	 */
+	private boolean checkBits(long bitMask, int n) {
+		return (bitMask | (1L << n)) == bitMask;
+	}
 
 	public boolean check(Calendar calendar) {
-        if(!checkBits(bits[0],calendar.get(MINUTE)))
-            return false;
-        if(!checkBits(bits[1],calendar.get(HOUR_OF_DAY)))
-            return false;
-        if(!checkBits(bits[2],calendar.get(DAY_OF_MONTH)))
-            return false;
-        if(!checkBits(bits[3],calendar.get(MONTH)+1))
-            return false;
-        if(!checkBits(dayOfWeek,calendar.get(Calendar.DAY_OF_WEEK)-1))
-            return false;
+		if (!checkBits(bits[0], calendar.get(MINUTE)))
+			return false;
+		if (!checkBits(bits[1], calendar.get(HOUR_OF_DAY)))
+			return false;
+		if (!checkBits(bits[2], calendar.get(DAY_OF_MONTH)))
+			return false;
+		if (!checkBits(bits[3], calendar.get(MONTH) + 1))
+			return false;
+		if (!checkBits(dayOfWeek, calendar.get(Calendar.DAY_OF_WEEK) - 1))
+			return false;
 
-        return true;
-
-//		Object result;
-//		try {
-//			Method method = CronTab.class.getMethod("check", Calendar.class);
-//			result = method.invoke(cronTab, calendar);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return false;
-//		}
-//		return (Boolean) result;
-		//		return cronTab.check(calendar);
+		return true;
 	}
 
 	public String checkSanity() {
-//        for( int i=0; i<5; i++ ) {
-//            long bitMask = (i<4)?bits[i]:(long)dayOfWeek;
-//            for( int j=BaseParser.LOWER_BOUNDS[i]; j<=BaseParser.UPPER_BOUNDS[i]; j++ ) {
-//                if(!checkBits(bitMask,j)) {
-//                    // this rank has a sparse entry.
-//                    // if we have a sparse rank, one of them better be the left-most.
-//                    if(i>0)
-//                        return Messages.CronTab_do_you_really_mean_every_minute_when_you(spec, "0 " + spec.substring(spec.indexOf(' ')+1));
-//                    // once we find a sparse rank, upper ranks don't matter
-//                    return null;
-//                }
-//            }
-//        }
-
-        return null;
+		return cronTab.checkSanity();
 	}
 }
