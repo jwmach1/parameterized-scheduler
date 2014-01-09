@@ -12,6 +12,30 @@
 	<artifactId>parameterized-scheduler</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>hpi</packaging>
+	<url>https://github.com/jwmach1/parameterized-scheduler</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<issueManagement>
+		<url>https://github.com/jwmach1/parameterized-scheduler/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<url>https://github.com/jwmach1/parameterized-scheduler</url>
+		<connection>scm:git:https://github.com/jwmach1/parameterized-scheduler.git</connection>
+		<developerConnection>scm:git:https://github.com/jwmach1/parameterized-scheduler.git</developerConnection>
+	</scm>
 
 	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the 
 		artifacts that we need -->
@@ -46,6 +70,14 @@
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.2</version>
+				<configuration>
+					<goals>install</goals>
 				</configuration>
 			</plugin>
 		</plugins>
