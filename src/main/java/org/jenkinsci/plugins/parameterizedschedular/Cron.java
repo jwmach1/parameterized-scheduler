@@ -26,7 +26,7 @@ public class Cron extends PeriodicWork {
 
 	@Override
 	protected void doRun() throws Exception {
-		LOGGER.warning("dorun-run");
+		LOGGER.finer("dorun-run");
 		checkTriggers(new GregorianCalendar());
 	}
 

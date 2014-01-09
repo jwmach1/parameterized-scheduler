@@ -1,0 +1,33 @@
+<div>
+	<strong>follow convension of cron, schedule with name=value
+		pairs at the end of each line.</strong>
+	<p>Everything up till the % character is just like the normal
+		Jenkins Cron-like schedular. Then afte the % character you should
+		format your parameters as name value pairs separated by equals and
+		semicolons: name=value;othername=othervalue</p>
+
+	<p>
+		There are of course limitations to what can be passed as parameters.
+		As well as what types of parameters can be assigned. The internal
+		mechanism leans on the same HTTP POST request method for triggering
+		builds as documented in <a
+			href="https://wiki.jenkins-ci.org/display/JENKINS/Parameterized+Build">Launching
+			a build with parameters.</a>
+	<ul>
+		<li>don't use semi-colons in the values</li>
+		<li>don't use equals in the values</li>
+	</ul>
+	</p>
+	<p>
+		This is a first step toward solving <a
+			href="https://issues.jenkins-ci.org/browse/JENKINS-16352">this
+			Jenkins issue</a>.
+	</p>
+	<p>Examples:</p>
+	<pre>
+# every fifteen minutes (perhaps at :07, :22, :37, :52)
+H/15 * * * * %name=value
+# every ten minutes in the first half of every hour (three times, perhaps at :04, :14, :24)
+H(0-29)/10 * * * * % name=value; othername=othervalue
+</pre>
+</div>

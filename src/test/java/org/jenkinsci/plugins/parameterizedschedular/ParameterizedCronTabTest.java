@@ -1,7 +1,6 @@
 package org.jenkinsci.plugins.parameterizedschedular;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import hudson.scheduler.CronTab;
 
@@ -23,7 +22,7 @@ public class ParameterizedCronTabTest {
 
 		assertEquals(parameters, testObject.getParameterValues());
 		assertTrue(testObject.check(new GregorianCalendar()));
-		assertNull(testObject.checkSanity());
+		assertTrue(testObject.checkSanity().startsWith("Do you really mean"));
 	}
 
 }

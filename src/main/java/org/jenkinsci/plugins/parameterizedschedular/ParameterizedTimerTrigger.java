@@ -8,11 +8,9 @@ import hudson.model.AbstractProject;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
-import hudson.scheduler.CronTabList;
 import hudson.scheduler.Hash;
 import hudson.triggers.Trigger;
 import hudson.triggers.TriggerDescriptor;
-import hudson.triggers.TimerTrigger.TimerTriggerCause;
 import hudson.util.FormValidation;
 
 import java.util.ArrayList;
@@ -33,10 +31,11 @@ import antlr.ANTLRException;
  * @author jameswilson
  *
  */
+@SuppressWarnings("rawtypes")
 public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 	private static final Logger LOGGER = Logger.getLogger(ParameterizedTimerTrigger.class.getName());
 	private transient ParameterizedCronTabList cronTabList;
-	private String parameterizedSpecification;
+	private final String parameterizedSpecification;
 
 	@DataBoundConstructor
 	public ParameterizedTimerTrigger(String parameterizedSpecification) throws ANTLRException {
@@ -46,7 +45,7 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 
 	@Override
 	public void run() {
-		LOGGER.fine("tried to run from base Trigger");
+		LOGGER.fine("tried to run from base Trigger, nothing will happen");
 	}
 
 	/**
@@ -54,6 +53,7 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 	 * @param parameterValues 
 	 * @return the ParameterValues as set from the crontab row or their defaults
 	 */
+	@SuppressWarnings("unchecked")
 	private List<ParameterValue> configurePropertyValues(Map<String, String> parameterValues) {
 		assert job != null : "job must not be null if this was 'started'";
 		ParametersDefinitionProperty paramDefProp = (ParametersDefinitionProperty) job
@@ -79,10 +79,10 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 		LOGGER.fine("checking and maybe running at " + calendar);
 		ParameterizedCronTab cronTab = cronTabList.check(calendar);
 		if (cronTab != null) {
-			ParametersAction parametersAction = new ParametersAction(
-					configurePropertyValues(cronTab.getParameterValues()));
+			Map<String, String> parameterValues = cronTab.getParameterValues();
+			ParametersAction parametersAction = new ParametersAction(configurePropertyValues(parameterValues));
 			assert job != null : "job must not be null, if this was 'started'";
-			job.scheduleBuild2(0, new TimerTriggerCause(), parametersAction);
+			job.scheduleBuild2(0, new ParameterizedTimerTriggerCause(parameterValues), parametersAction);
 		}
 	}
 
@@ -101,6 +101,7 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 
 	@Extension
 	public static class DescriptorImpl extends TriggerDescriptor {
+		@Override
 		public boolean isApplicable(Item item) {
 			boolean result = false;
 			if (item instanceof AbstractProject) {
@@ -109,6 +110,7 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 			return result;
 		}
 
+		@Override
 		public String getDisplayName() {
 			return Messages.ParameterizedTimerTrigger_DisplayName();
 		}
@@ -135,7 +137,7 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 			}
 		}
 	}
-	
+
 	/**
 	 * for the config.jelly to populate
 	 * 
