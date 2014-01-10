@@ -5,6 +5,11 @@ A Jenkins Plugin to support setting parameters in the build schedule. Using mult
 [this improvement request JENKINS-16352](https://issues.jenkins-ci.org/browse/JENKINS-16352)
 will be implemented in Jenkins core. Then this plugin will no longer be needed. My first thought is to try it out as a plugin.
 
+## Installation ##
+Clone or fork to build the .hpi yourself (_mvn package_) or download the .hpi from my release. Then follow the [Jenkins Plugin installation instructions](https://wiki.jenkins-ci.org/display/JENKINS/Plugins#Plugins-Howtoinstallplugins)
+
+## Configuration ##
+
 After you save your project with some parameters (yes, save, then go back into the config page) you will see 
 >Build periodically with parameters
 
