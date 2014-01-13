@@ -1,5 +1,9 @@
 package org.jenkinsci.plugins.parameterizedschedular;
 
+import hudson.model.ParametersDefinitionProperty;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +36,7 @@ public class ParameterParser {
 		return Splitter.on(PAIR_SEPARATOR).withKeyValueSeparator(NAME_VALUE_SEPARATOR).split(clean);
 	}
 
-	public String checkSanity(String cronTabSpec) {
+	public String checkSanity(String cronTabSpec, ParametersDefinitionProperty parametersDefinitionProperty) {
 		String[] split = cronTabSpec.split(PARAMETER_SEPARATOR);
 		if (split.length < 2) {
 			return null;
@@ -42,7 +46,13 @@ public class ParameterParser {
 		}
 
 		try {
-			parse(split[1]);
+			Map<String, String> parsedParameters = parse(split[1]);
+			List<String> parameterDefinitionNames = parametersDefinitionProperty.getParameterDefinitionNames();
+			List<String> parsedKeySet = new ArrayList<String>(parsedParameters.keySet());
+			parsedKeySet.removeAll(parameterDefinitionNames);
+			if (!parsedKeySet.isEmpty()) {
+				return Messages.ParameterizedTimerTrigger_UndefinedParameter(parsedKeySet, parameterDefinitionNames);
+			}
 		} catch (IllegalArgumentException e) {
 			return e.getMessage();
 		}

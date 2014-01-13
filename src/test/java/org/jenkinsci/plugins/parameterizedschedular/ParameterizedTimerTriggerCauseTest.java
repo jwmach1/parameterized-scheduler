@@ -16,7 +16,7 @@ public class ParameterizedTimerTriggerCauseTest {
 		parameters.put("o", "v");
 		ParameterizedTimerTriggerCause testObject = new ParameterizedTimerTriggerCause(parameters);
 
-		assertEquals(Messages.ParameterizedTimerTrigger_TimerTriggerCause_ShortDescription() + "{o=v}",
+		assertEquals(Messages.ParameterizedTimerTrigger_TimerTriggerCause_ShortDescription("{o=v}"),
 				testObject.getShortDescription());
 	}
 

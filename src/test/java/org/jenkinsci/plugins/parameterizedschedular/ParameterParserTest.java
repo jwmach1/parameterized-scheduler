@@ -2,12 +2,23 @@ package org.jenkinsci.plugins.parameterizedschedular;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import hudson.model.ParametersDefinitionProperty;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ParameterParserTest {
+
+	@Mock
+	private ParametersDefinitionProperty mockParametersDefinitionProperty;
 
 	@Test
 	public void test_nullReturns_emptyMap() {
@@ -72,14 +83,27 @@ public class ParameterParserTest {
 	public void checkSanity_HappyPath() throws Exception {
 		ParameterParser testObject = new ParameterParser();
 
-		assertNull(testObject.checkSanity("* * * * *%name=value"));
+		Mockito.when(mockParametersDefinitionProperty.getParameterDefinitionNames()).thenReturn(Arrays.asList("name"));
+		assertNull(testObject.checkSanity("* * * * *%name=value", mockParametersDefinitionProperty));
+	}
+
+	@Test
+	public void checkSanity_NotDefined_ProjectParameter() throws Exception {
+		ParameterParser testObject = new ParameterParser();
+
+		List<String> list = Arrays.asList("not name");
+		Mockito.when(mockParametersDefinitionProperty.getParameterDefinitionNames()).thenReturn(list);
+		assertEquals(Messages.ParameterizedTimerTrigger_UndefinedParameter("[name]", list.toString()),
+				testObject.checkSanity("* * * * *%name=value", mockParametersDefinitionProperty));
 	}
 
 	@Test
 	public void checkSanity_TrailingSemiColon_IsTrimmed() throws Exception {
 		ParameterParser testObject = new ParameterParser();
 
-		assertNull(testObject.checkSanity("* * * * *%env=eight;freckled=flase;frecked=false;"));
+		Mockito.when(mockParametersDefinitionProperty.getParameterDefinitionNames()).thenReturn(
+				Arrays.asList("env", "freckled"));
+		assertNull(testObject.checkSanity("* * * * *%env=eight;freckled=flase;", mockParametersDefinitionProperty));
 	}
 
 	@Test
@@ -87,29 +111,29 @@ public class ParameterParserTest {
 		ParameterParser testObject = new ParameterParser();
 
 		assertEquals(Messages.ParameterizedTimerTrigger_MoreThanOnePercent(),
-				testObject.checkSanity("* * * * *%name=value;%fred=barney"));
+				testObject.checkSanity("* * * * *%name=value;%fred=barney", mockParametersDefinitionProperty));
 	}
 
 	@Test
-	public void checkSanity_NoParaetersIsNoBigDeal() throws Exception {
+	public void checkSanity_NoParametersIsNoBigDeal() throws Exception {
 		ParameterParser testObject = new ParameterParser();
 
-		assertNull(testObject.checkSanity("* * * * *%"));
-		assertNull(testObject.checkSanity("* * * * *"));
+		assertNull(testObject.checkSanity("* * * * *%", mockParametersDefinitionProperty));
+		assertNull(testObject.checkSanity("* * * * *", mockParametersDefinitionProperty));
 	}
 
 	@Test
 	public void checkSanity_duplicateParamName() throws Exception {
 		ParameterParser testObject = new ParameterParser();
 
-		testObject.checkSanity("* * * * *%name=value;name=value2");
+		testObject.checkSanity("* * * * *%name=value;name=value2", mockParametersDefinitionProperty);
 	}
 
 	@Test
 	public void checkSanity_UnmatchedEquals() throws Exception {
 		ParameterParser testObject = new ParameterParser();
 
-		testObject.checkSanity("* * * * *%name=value;name2=");
+		testObject.checkSanity("* * * * *%name=value;name2=", mockParametersDefinitionProperty);
 	}
 
 }

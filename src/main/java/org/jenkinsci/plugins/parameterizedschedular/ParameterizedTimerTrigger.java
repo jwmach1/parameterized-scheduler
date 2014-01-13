@@ -1,8 +1,5 @@
 package org.jenkinsci.plugins.parameterizedschedular;
 
-import static hudson.Util.fixNull;
-import hudson.Extension;
-import hudson.model.Item;
 import hudson.model.ParameterValue;
 import hudson.model.AbstractProject;
 import hudson.model.ParameterDefinition;
@@ -10,8 +7,6 @@ import hudson.model.ParametersAction;
 import hudson.model.ParametersDefinitionProperty;
 import hudson.scheduler.Hash;
 import hudson.triggers.Trigger;
-import hudson.triggers.TriggerDescriptor;
-import hudson.util.FormValidation;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
 import antlr.ANTLRException;
 
@@ -96,52 +90,6 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 			// this shouldn't fail because we've already parsed stuff in the constructor,
 			// so if it fails, use whatever 'tabs' that we already have.
 			LOGGER.log(Level.FINE, "Failed to parse crontab spec: " + spec, e);
-		}
-	}
-
-	@Extension
-	public static class DescriptorImpl extends TriggerDescriptor {
-		@Override
-		public boolean isApplicable(Item item) {
-			boolean result = false;
-			if (item instanceof AbstractProject) {
-				result = ((AbstractProject) item).isParameterized();
-			}
-			return result;
-		}
-
-		@Override
-		public String getDisplayName() {
-			return Messages.ParameterizedTimerTrigger_DisplayName();
-		}
-
-		// backward compatibility
-		public FormValidation doCheck(@QueryParameter String value) {
-			return doCheckParameterizedSpecification(value);
-		}
-
-		/**
-		 * Performs syntax check.
-		 */
-		public FormValidation doCheckParameterizedSpecification(@QueryParameter String value) {
-			try {
-				String msg = ParameterizedCronTabList.create(fixNull(value)).checkSanity();
-				if (msg != null) {
-					return FormValidation.warning(msg);
-				}
-				msg = new ParameterParser().checkSanity(value);
-				if (msg != null) {
-					return FormValidation.warning(msg);
-				}
-
-				return FormValidation.ok();
-			} catch (ANTLRException e) {
-				if (value.trim().indexOf('\n') == -1 && value.contains("**"))
-					return FormValidation.error(Messages.ParameterizedTimerTrigger_MissingWhitespace());
-				return FormValidation.error(e.getMessage());
-			} catch (IllegalArgumentException e) {
-				return FormValidation.error(e.getMessage());
-			}
 		}
 	}
 
