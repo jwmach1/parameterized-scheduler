@@ -129,10 +129,17 @@ public class ParameterizedTimerTrigger extends Trigger<AbstractProject> {
 				if (msg != null) {
 					return FormValidation.warning(msg);
 				}
+				msg = new ParameterParser().checkSanity(value);
+				if (msg != null) {
+					return FormValidation.warning(msg);
+				}
+
 				return FormValidation.ok();
 			} catch (ANTLRException e) {
 				if (value.trim().indexOf('\n') == -1 && value.contains("**"))
 					return FormValidation.error(Messages.ParameterizedTimerTrigger_MissingWhitespace());
+				return FormValidation.error(e.getMessage());
+			} catch (IllegalArgumentException e) {
 				return FormValidation.error(e.getMessage());
 			}
 		}
