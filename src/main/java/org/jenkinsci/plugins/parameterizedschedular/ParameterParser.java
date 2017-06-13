@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.parameterizedschedular;
+ackage org.jenkinsci.plugins.parameterizedschedular;
 
 import hudson.model.ParametersDefinitionProperty;
 
@@ -37,24 +37,25 @@ public class ParameterParser {
 	}
 
 	public String checkSanity(String cronTabSpec, ParametersDefinitionProperty parametersDefinitionProperty) {
-		String[] split = cronTabSpec.split(PARAMETER_SEPARATOR);
-		if (split.length < 2) {
-			return null;
-		}
-		if (split.length > 2) {
-			return Messages.ParameterizedTimerTrigger_MoreThanOnePercent();
-		}
-
-		try {
-			Map<String, String> parsedParameters = parse(split[1]);
-			List<String> parameterDefinitionNames = parametersDefinitionProperty.getParameterDefinitionNames();
-			List<String> parsedKeySet = new ArrayList<String>(parsedParameters.keySet());
-			parsedKeySet.removeAll(parameterDefinitionNames);
-			if (!parsedKeySet.isEmpty()) {
-				return Messages.ParameterizedTimerTrigger_UndefinedParameter(parsedKeySet, parameterDefinitionNames);
+		String[] cronTabLines = cronTabSpec.split("\\r?\\n");
+		for (int i = 0; i < cronTabLines.length; i++) {
+			String[] split = cronTabLines[i].split(PARAMETER_SEPARATOR);
+			if (split.length > 2) {
+				return Messages.ParameterizedTimerTrigger_MoreThanOnePercent();
 			}
-		} catch (IllegalArgumentException e) {
-			return e.getMessage();
+			if (split.length == 2) {
+				try {
+					Map<String, String> parsedParameters = parse(split[1]);
+					List<String> parameterDefinitionNames = parametersDefinitionProperty.getParameterDefinitionNames();
+					List<String> parsedKeySet = new ArrayList<String>(parsedParameters.keySet());
+					parsedKeySet.removeAll(parameterDefinitionNames);
+					if (!parsedKeySet.isEmpty()) {
+						return Messages.ParameterizedTimerTrigger_UndefinedParameter(parsedKeySet, parameterDefinitionNames);
+					}
+				} catch (IllegalArgumentException e) {
+					return e.getMessage();
+				}
+			}
 		}
 		return null;
 	}
