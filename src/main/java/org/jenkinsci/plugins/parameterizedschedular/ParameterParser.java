@@ -1,4 +1,4 @@
-ackage org.jenkinsci.plugins.parameterizedschedular;
+package org.jenkinsci.plugins.parameterizedschedular;
 
 import hudson.model.ParametersDefinitionProperty;
 
