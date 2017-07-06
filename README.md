@@ -1,6 +1,8 @@
 Parameterized Scheduler
 =======================
 
+## Before looking too deep here, take a look at the [fork](https://github.com/jenkinsci/parameterized-scheduler-plugin). That is the plugin registered in the [Jenkins registry](https://plugins.jenkins.io/parameterized-scheduler)
+
 A Jenkins Plugin to support setting parameters in the build schedule. Using multiple cron lines each ending with a % and some name=value pairs you can schedule your parameterized build to run with different parameters at different times. It may turn out that 
 [this improvement request JENKINS-16352](https://issues.jenkins-ci.org/browse/JENKINS-16352)
 will be implemented in Jenkins core. Then this plugin will no longer be needed. My first thought is to try it out as a plugin.
